@@ -1,0 +1,20 @@
+sudo apt update && sudo apt upgrade -y
+curl -sSL https://install.pi-hole.net | bash
+
+# Static IP via router configuration
+# Configure the router to only use this DNS server
+
+# Maintenance #
+sudo pihole status
+# update subsytems
+sudo pihole -up
+# check efficiency
+https://adblock-tester.com/ 
+# Add or remove block list URLs
+sudo nano /etc/pihole/adlists.list
+
+
+'''
+Reference
+https://www.raspberrypi.com/tutorials/running-pi-hole-on-a-raspberry-pi/
+'''
