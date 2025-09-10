@@ -12,7 +12,8 @@ sudo pihole -up
 https://adblock-tester.com/ 
 # Add or remove block list URLs
 sudo nano /etc/pihole/adlists.list
-
+# Apply updates
+pihole -g
 
 '''
 Reference
