@@ -1,0 +1,10 @@
+#!/bin/bash
+# Plex Media Server Setup
+
+sudo apt-get install apt-transport-https
+curl https://downloads.plex.tv/plex-keys/PlexSign.key | sudo apt-key add -
+echo deb https://downloads.plex.tv/repo/deb public main | sudo tee /etc/apt/sources.list.d/plexmediaserver.list
+sudo nano /etc/default/plexmediaserver -- " export PLEX_MEDIA_SERVER_USER=pi "
+sudo systemctl restart plexmediaserver
+hostname -I
+sudo nano /boot/cmdline.txt -- ip=YOUR IP
