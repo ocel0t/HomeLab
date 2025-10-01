@@ -1,0 +1,46 @@
+### Synapse setup on a Debian virtual machine ###
+
+### Docs: https://element-hq.github.io/synapse/latest/setup/installation.html ###
+
+# Download pre-installed VmWare image
+wget https://www.osboxes.org/debian/#debian-12-11-0-vmware
+
+# Remove the default user and add a new one
+
+sudo adduser ocel0t
+sudo usermod -aG ocel0t sudo
+sudo deluser osboxes
+
+# Set networking to Bridged in VmWare
+
+# Upgrade system and enable ssh
+
+sudo apt update
+sudo apt upgrade
+sudo apt install openssh-server
+sudo systemctl start ssh
+sudo systemctl enable ssh
+
+# Install Synapse debian package maintenade by matrix.org
+
+sudo apt install -y lsb-release wget apt-transport-https
+sudo wget -O /usr/share/keyrings/matrix-org-archive-keyring.gpg https://packages.matrix.org/debian/matrix-org-archive-keyring.gpg
+gpg /usr/share/keyrings/matrix-org-archive-keyring.gpg # Checking depository signing key fingerprint
+echo "deb [signed-by=/usr/share/keyrings/matrix-org-archive-keyring.gpg] https://packages.matrix.org/debian/ $(lsb_release -cs) main" |
+    sudo tee /etc/apt/sources.list.d/matrix-org.list
+sudo apt update
+sudo apt install matrix-synapse-py3
+
+# Installing and configuring PostgreSQL database
+
+sudo apt install libpq5
+sudo apt install postgresql postgresql-contrib
+sudo systemctl start postgresql
+sudo systemctl enable postgresql
+
+sudo -u postgres psql
+# this will prompt for a password for the new user
+createuser --pwprompt synapse_user
+createdb --encoding=UTF8 --locale=C --template=template0 --owner=synapse_user synapse
+
+
