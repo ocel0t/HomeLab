@@ -39,8 +39,23 @@ sudo systemctl start postgresql
 sudo systemctl enable postgresql
 
 sudo -u postgres psql
-# this will prompt for a password for the new user
 createuser --pwprompt synapse_user
 createdb --encoding=UTF8 --locale=C --template=template0 --owner=synapse_user synapse
+
+# Configuring Synapse
+
+sudo nano /etc/matrix-synapse/homeserver.yaml
+
+''' Change these arguments
+database:
+  name: psycopg2
+  args:
+    user: <user>
+    password: <pass>
+    dbname: <db>
+    host: <host>
+    cp_min: 5
+    cp_max: 10
+''''
 
 
