@@ -21,7 +21,7 @@ sudo apt install openssh-server
 sudo systemctl start ssh
 sudo systemctl enable ssh
 
-# Install Synapse debian package maintenade by matrix.org
+# Install Synapse debian package maintained by matrix.org
 
 sudo apt install -y lsb-release wget apt-transport-https
 sudo wget -O /usr/share/keyrings/matrix-org-archive-keyring.gpg https://packages.matrix.org/debian/matrix-org-archive-keyring.gpg
@@ -64,12 +64,6 @@ sudo service matrix-synapse restart
 sudo service matrix-synapse status
 tail -f /var/log/matrix-synapse/homeserver.log
 
-# Configuring a reverse proxy without SSL
-
-sudo apt install apache2 # installing an apache2 web server
-
-sudo nano /etc/apache2/sites-available/synapse.conf # creating virtual host configuration
-
 # Get a free hostname from duckDNS
 # https://www.duckdns.org/install.jsp
 
@@ -90,6 +84,50 @@ echo url="https://www.duckdns.org/update?domains=$DOMAIN&token=$TOKEN&ip=" | cur
 */5 * * * * ~/duckdns/duck.sh >/dev/null 2>&1  # schedule DNS updates with crontab (every 5 minutes)
 
 
+# Configuring a reverse proxy
+
+sudo apt install apache2 # installing an apache2 web server
+
+sudo nano /etc/apache2/sites-available/synapse.conf # creating virtual host configuration
+
+'''CONTENT synapse.conf'''
+
+<VirtualHost *:443>
+    SSLEngine on
+    ServerName "subdomain".duckdns.org # edit here
+
+    RequestHeader set "X-Forwarded-Proto" expr=%{REQUEST_SCHEME}
+    AllowEncodedSlashes NoDecode
+    ProxyPreserveHost on
+    ProxyPass /_matrix http://127.0.0.1:8008/_matrix nocanon
+    ProxyPassReverse /_matrix http://127.0.0.1:8008/_matrix
+    ProxyPass /_synapse/client http://127.0.0.1:8008/_synapse/client nocanon
+    ProxyPassReverse /_synapse/client http://127.0.0.1:8008/_synapse/client
+    ServerAlias "subdomain".duckdns.org # edit here
+    SSLCertificateFile /etc/letsencrypt/live/"subdomain".duckdns.org/fullchain.pem
+    SSLCertificateKeyFile /etc/letsencrypt/live/"subdomain".duckdns.org/privkey.pem
+    Include /etc/letsencrypt/options-ssl-apache.conf
+</VirtualHost>
+
+<VirtualHost *:8448>
+    SSLEngine on
+    ServerName "subdomain".duckdns.org # edit here
+    SSLCertificateFile /etc/letsencrypt/live/"subdomain".duckdns.org/fullchain.pem # edit here
+    SSLCertificateKeyFile /etc/letsencrypt/live/"subdomain".duckdns.org/privkey.pem # edit here
+    Include /etc/letsencrypt/options-ssl-apache.conf
+
+
+    RequestHeader set "X-Forwarded-Proto" expr=%{REQUEST_SCHEME}
+    AllowEncodedSlashes NoDecode
+    ProxyPass /_matrix http://127.0.0.1:8008/_matrix nocanon
+    ProxyPassReverse /_matrix http://127.0.0.1:8008/_matrix
+</VirtualHost>
+
+'''CONTENT'''
+
+sudo a2enmod proxy proxy_http headers ssl rewrite # enabling modules for the reverse proxy
+sudo systemctl restart apache2  
+
 # Setting up Let’s Encrypt SSL certificates
 
 sudo apt install certbot python3-certbot-apache -y # and ensure Port Forwarding for 80 and 443
@@ -102,34 +140,6 @@ sudo certbot renew --dry-run # check if it's working
 
 
 
-
-
-
-'''CONTENT'''
-
-<VirtualHost *:443>
-    ServerName example.com # change here!
-
-    RequestHeader set "X-Forwarded-Proto" expr=%{REQUEST_SCHEME}
-    AllowEncodedSlashes NoDecode
-    ProxyPreserveHost on
-    ProxyPass /_matrix http://127.0.0.1:8008/_matrix nocanon
-    ProxyPassReverse /_matrix http://127.0.0.1:8008/_matrix
-    ProxyPass /_synapse/client http://127.0.0.1:8008/_synapse/client nocanon
-    ProxyPassReverse /_synapse/client http://127.0.0.1:8008/_synapse/client
-</VirtualHost>
-
-<VirtualHost *:8448>
-    ServerName example.com # edit here!
-
-    RequestHeader set "X-Forwarded-Proto" expr=%{REQUEST_SCHEME}
-    AllowEncodedSlashes NoDecode
-    ProxyPass /_matrix http://127.0.0.1:8008/_matrix nocanon
-    ProxyPassReverse /_matrix http://127.0.0.1:8008/_matrix
-</VirtualHost>
-
-
-'''CONTENT'''
 
 
 
