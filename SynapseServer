@@ -11,7 +11,7 @@ sudo adduser ocel0t
 sudo usermod -aG ocel0t sudo
 sudo deluser osboxes
 
-# Set networking to Bridged in VmWare
+# Set networking to "Bridged" in VmWare
 
 # Upgrade system and enable ssh
 
@@ -69,6 +69,41 @@ tail -f /var/log/matrix-synapse/homeserver.log
 sudo apt install apache2 # installing an apache2 web server
 
 sudo nano /etc/apache2/sites-available/synapse.conf # creating virtual host configuration
+
+# Get a free hostname from duckDNS
+# https://www.duckdns.org/install.jsp
+
+sudo apt install curl
+mkdir ~/duckdns
+cd ~/duckdns/ 
+touch duck.sh
+
+''' CONTENT of duckdns.sh '''
+
+#!/bin/bash
+DOMAIN="" # edit here
+TOKEN="" # edit here
+echo url="https://www.duckdns.org/update?domains=$DOMAIN&token=$TOKEN&ip=" | curl -k -o ~/duckdns/duck.log -K -
+
+''' CONTENT '''
+
+*/5 * * * * ~/duckdns/duck.sh >/dev/null 2>&1  # schedule DNS updates with crontab (every 5 minutes)
+
+
+# Setting up Let’s Encrypt SSL certificates
+
+sudo apt install certbot python3-certbot-apache -y # and ensure Port Forwarding for 80 and 443
+
+sudo certbot --apache -d "subdomain".duckdns.org # edit here
+sudo systemctl status certbot.timer # setup automatic renewal routine
+sudo certbot renew --dry-run # check if it's working
+
+
+
+
+
+
+
 
 '''CONTENT'''
 
