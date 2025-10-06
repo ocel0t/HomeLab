@@ -52,6 +52,7 @@ server_name: "hostname" # edit here
 pid_file: "/var/run/matrix-synapse.pid"
 
 #enable_registration: true
+#enable_registration_without_verification: true
 
 listeners:
   - port: 8008
