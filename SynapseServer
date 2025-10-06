@@ -48,6 +48,7 @@ sudo nano /etc/matrix-synapse/homeserver.yaml
 
 ''' CONTENT homeserver.yaml'''
 
+server_name: "hostname" # edit here
 pid_file: "/var/run/matrix-synapse.pid"
 
 #enable_registration: true
@@ -80,14 +81,16 @@ trusted_key_servers:
 
 ''''
 
+# Set server name in the Synapse config
+echo server_name:"hostname" > /etc/matrix-synapse/conf.d/server_name.yaml # edit here
+
 # Checking the matrix-synapse service running, monitoring logs
 
 sudo service matrix-synapse restart
 sudo service matrix-synapse status
 tail -f /var/log/matrix-synapse/homeserver.log
 
-
-# Get a free hostname from duckDNS
+### Get a free hostname from duckDNS
 # https://www.duckdns.org/install.jsp
 
 sudo apt install curl
@@ -167,9 +170,12 @@ sudo systemctl restart apache2
 # Make Apache2 listen for federation!
 echo "Listen 8448" >> /etc/apache2/ports.conf
 
-### Other useful debig commands
-sudo netstat -tulpn | grep 8448
 # Don't forget to setup port forwarding to the server (80,443,8448)
+
+### Other useful debug commands
+sudo netstat -tulpn | grep 8448
+# https://federationtester.matrix.org
+
 
 
 
