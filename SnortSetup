@@ -1,0 +1,25 @@
+1) Prereqs and interface check
+
+    Update packages:
+
+sudo apt update && sudo apt -y upgrade
+
+    Identify your network interface (note the one carrying LAN/Internet traffic):
+
+ip -br addr
+
+sudo apt install -y snort tcpdump ethtool
+snort -V
+
+3) Key file locations
+
+    Main config (Lua): /etc/snort/snort.lua
+
+    Rules directory: /etc/snort/rules/
+
+    Local rules: /etc/snort/rules/local.rules
+
+    Log directory: /var/log/snort/ (may be created on first run)
+
+
+
